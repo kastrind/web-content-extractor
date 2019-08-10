@@ -4,7 +4,7 @@ namespace wcx;
 
 
 
-header('Access-Control-Allow-Origin: https://www.newsrush.gr');
+header('Access-Control-Allow-Origin: https://www.example.gr');
 
 header("Content-Type: application/json; charset=UTF-8");
 
