@@ -6,7 +6,8 @@ This is a server application for custom web content extraction.
 1. Import `db_schema.sql` to a database
 2. Fill in database connection fields in `config.php`
 3. Setup additional sources in `extractor.php`
-4. Optionally, setup a cron job to periodically execute the application for fresh results.
+4. Configure `Access-Control-Allow-Origin` in `api/poi/read.php`, to restrict access to the api. 
+5. Optionally, setup a cron job to periodically execute the application for fresh results.
 
 #### Live example:
 [News Rush](https://newsrush.gr)
