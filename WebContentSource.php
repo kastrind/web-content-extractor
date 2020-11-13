@@ -36,6 +36,7 @@ class WebContentSource {
         $parsed_url = parse_url($this->sourceURL);
         $this->rootURL = $parsed_url['scheme'] . "://" . $parsed_url['host'];
         $this->type = $type;
+        $this->pois = array();
     }
 
     private function retrieve() {
