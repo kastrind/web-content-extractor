@@ -77,7 +77,7 @@ class WebContentSource {
                 }
                 if ($imgURL) {
                     $separator = substr($imgURL, 0, 1) == '/' ? '' : '/';
-                    if (!parse_url($imgURL)['host']) $imgURL = $this->rootURL . $separator . $imgURL;
+                    if (!parse_url($imgURL, PHP_URL_HOST)) $imgURL = $this->rootURL . $separator . $imgURL;
                     $poi->setImage($imgURL);
                 }
             }
@@ -87,7 +87,7 @@ class WebContentSource {
                     $linkURL = $el->href;
                 }
                 $separator = substr($linkURL, 0, 1) == '/' ? '' : '/';
-                if (!parse_url($linkURL)['host']) $linkURL = $this->rootURL . $separator . $linkURL;
+                if (!parse_url($linkURL, PHP_URL_HOST)) $linkURL = $this->rootURL . $separator . $linkURL;
                 $poi->setLink($linkURL);
                 if (!$poi->getLink()) continue;
             }
