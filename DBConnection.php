@@ -11,7 +11,7 @@ class DBConnection {
     private $dbh;
 
     public function __construct($host, $dbName, $dbUser, $dbPass) {
-        $this->dbh = new \PDO("mysql:host=$host;dbname=$dbName", $dbUser, $dbPass);
+        $this->dbh = new \PDO("mysql:host=$host;dbname=$dbName;charset=utf8", $dbUser, $dbPass);
     }
 
     public function getConnection() {
