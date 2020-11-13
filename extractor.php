@@ -48,7 +48,7 @@ foreach ($sources as $source) {
 
     $pois = $source->extract();
 
-    $report .= "Found ".count($pois)." points of interest from source ".$source->getSourceURL()."<br/>";
+    $report .= "Found ".count($pois)." points of interest from source ".$source->getSourceURL()."<br/>\n";
 
     if (!count($pois)) continue;
 
