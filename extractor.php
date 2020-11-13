@@ -42,7 +42,7 @@ $sources[] = $source;
 $pois_to_insert = [];
 $pois_inserted = 0;
 
-$report = "<html><head></head><body>";
+$report = "<html><head></head><body>\n";
 
 foreach ($sources as $source) {
 
@@ -59,14 +59,14 @@ foreach ($sources as $source) {
         $relevants = WebContentSource::findRecentRelevant($dbc, $poi->getTitle(), $date_from->format(DATETIMEFORMAT), $date_to->format(DATETIMEFORMAT));
         $num_words = min( count(explode(" ", $poi->getTitle())), count(explode(" ", $relevants[0]["title"])) );
         
-        //$report .= "Poi '". $poi->getTitle()."' has #".count($relevants)." similars and most similar is '".$relevants[0]["title"]."' with score ".$relevants[0]["score"].".<br/><br/>";
+        //$report .= "Poi '". $poi->getTitle()."' has #".count($relevants)." similars and most similar is '".$relevants[0]["title"]."' with score ".$relevants[0]["score"].".<br/><br/>\n";
 
         // insertion criteria based on existing poi similarity
         if (count($relevants) && $relevants[0]["score"] > 0 && $relevants[0]["score"] < 10) {
-            $report .= "Will insert '". $poi->getTitle()."' with #".count($relevants)." similars as it is not similar to '".$relevants[0]["title"]."' with score ".$relevants[0]["score"]." and threshold 10.<br/><br/>";
+            $report .= "Will insert '". $poi->getTitle()."' with #".count($relevants)." similars as it is not similar to '".$relevants[0]["title"]."' with score ".$relevants[0]["score"]." and threshold 10.<br/><br/>\n";
             $pois_to_insert[] = $poi;
         }else if (!count($relevants)) {
-            $report .= "Will insert '". $poi->getTitle()."' with #".count($relevants).".<br/><br/>";
+            $report .= "Will insert '". $poi->getTitle()."' with #".count($relevants).".<br/><br/>\n";
             $pois_to_insert[] = $poi;
         }
 
@@ -80,9 +80,9 @@ foreach ($sources as $source) {
 
 $time_end = time();
 
-$report .= $pois_inserted." points of interest inserted to db.<br/>";
+$report .= $pois_inserted." points of interest inserted to db.<br/>\n";
 
-$report .= "Operation completed in ".($time_end - $time_start)." seconds.</body></html>";
+$report .= "Operation completed in ".($time_end - $time_start)." seconds.</body></html>\n";
 echo $report;
 
 // optionally mail the report
