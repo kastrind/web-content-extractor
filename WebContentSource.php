@@ -7,6 +7,10 @@ namespace wcx;
  *
  */
 class WebContentSource {
+
+    const NUM_RELEVANT_LIMIT = 300;
+
+    const RELEVANCE_THRESHOLD = 7;
     
     private $sourceURL;
     
@@ -36,7 +40,7 @@ class WebContentSource {
         $parsed_url = parse_url($this->sourceURL);
         $this->rootURL = $parsed_url['scheme'] . "://" . $parsed_url['host'];
         $this->type = $type;
-        $this->pois = array();
+    	$this->pois = array();
     }
 
     private function retrieve() {
@@ -169,7 +173,7 @@ class WebContentSource {
         $this->user_agent = $user_agent;
     }
 
-    public static function findRecentRelevant(DBConnection $dbc, $title, $date_from, $date_to, PoiType $type=null) {
+    public static function findRecentRelevantFullText(DBConnection $dbc, $title, $date_from, $date_to, PoiType $type=null) {
         $join_clause = ($type) ? " INNER JOIN poi_types pt ON pt.id = p.ptype " : "";
         $and_clause = ($type) ? " AND p.ptype = :id " : "";
         $sql_sel = "SELECT id, title, extraction_date, MATCH(title)
@@ -178,16 +182,39 @@ class WebContentSource {
                    WHERE extraction_date >= :date_from AND extraction_date <= :date_to
                    AND MATCH (title) AGAINST (:title IN NATURAL LANGUAGE MODE)
                    " . $and_clause . "
-                   ORDER BY score DESC LIMIT 30";
+                   ORDER BY score DESC LIMIT " . self::NUM_RELEVANT_LIMIT;
         $query = $dbc->getConnection()->prepare($sql_sel);
         $query->bindValue(':title', $title, \PDO::PARAM_STR); 
         $query->bindValue(':date_from', $date_from, \PDO::PARAM_STR); 
         $query->bindValue(':date_to', $date_to, \PDO::PARAM_STR);
         if ($type) { $query->bindValue(':id', (int) $type->getId(), \PDO::PARAM_INT); }
         $query->execute();
-
         $result = $query->fetchAll(\PDO::FETCH_ASSOC);
         return $result;
+    }
+
+    public static function findRecentRelevantSimilarText(DBConnection $dbc, $title, $date_from, $date_to, PoiType $type=null) {
+        $join_clause = ($type) ? " INNER JOIN poi_types pt ON pt.id = p.ptype " : "";
+        $and_clause = ($type) ? " AND p.ptype = :id " : "";
+        $sql_sel = "SELECT id, title, extraction_date FROM pois " . $join_clause . "
+                   WHERE extraction_date >= :date_from AND extraction_date <= :date_to
+                   " . $and_clause . "
+                   ORDER BY id DESC LIMIT " . self::NUM_RELEVANT_LIMIT;
+        $query = $dbc->getConnection()->prepare($sql_sel);
+        $query->bindValue(':date_from', $date_from, \PDO::PARAM_STR); 
+        $query->bindValue(':date_to', $date_to, \PDO::PARAM_STR);
+        if ($type) { $query->bindValue(':id', (int) $type->getId(), \PDO::PARAM_INT); }
+        $query->execute();
+        $result = $query->fetchAll(\PDO::FETCH_ASSOC);
+        $result_relevants = array();
+        foreach($result as $row) {
+            similar_text($row['title'], $title, $percent);
+            if ($percent >= self::RELEVANCE_THRESHOLD) {
+                $row['score'] = $percent;
+                $result_relevants[] = $row;
+            }
+        }
+        return $result_relevants;
     }
 
     public static function retrieveRecent(DBConnection $dbc, $date_from, $date_to, PoiType $type=null, $offset) {
