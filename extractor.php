@@ -58,7 +58,7 @@ foreach ($sources as $source) {
         $date_from = $date_from->sub(new \DateInterval('P3D'));
         $relevants = WebContentSource::findRecentRelevantFullText($dbc, $poi->getTitle(), $date_from->format(DATETIMEFORMAT), $date_to->format(DATETIMEFORMAT));
         
-        //$report .= "Poi '". $poi->getTitle()."' has #".count($relevants)." similars and most similar is '".$relevants[0]["title"]."' with score ".$relevants[0]["score"].".<br/><br/>";
+        //$report .= "Poi '". $poi->getTitle()."' has #".count($relevants)." similars and most similar is '".$relevants[0]["title"]."' with score ".$relevants[0]["score"].".<br/><br/>\n";
 
         // insertion criteria based on existing poi similarity
         if (count($relevants) && $relevants[0]['score'] >= WebContentSource::RELEVANCE_THRESHOLD) {
