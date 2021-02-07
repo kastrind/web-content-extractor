@@ -56,18 +56,19 @@ foreach ($sources as $source) {
         $date_to = $poi->getExtractionDate();
         $date_from = clone $date_to;
         $date_from = $date_from->sub(new \DateInterval('P3D'));
-        $relevants = WebContentSource::findRecentRelevant($dbc, $poi->getTitle(), $date_from->format(DATETIMEFORMAT), $date_to->format(DATETIMEFORMAT));
-        $num_words = min( count(explode(" ", $poi->getTitle())), count(explode(" ", $relevants[0]["title"])) );
+        $relevants = WebContentSource::findRecentRelevantFullText($dbc, $poi->getTitle(), $date_from->format(DATETIMEFORMAT), $date_to->format(DATETIMEFORMAT));
         
-        //$report .= "Poi '". $poi->getTitle()."' has #".count($relevants)." similars and most similar is '".$relevants[0]["title"]."' with score ".$relevants[0]["score"].".<br/><br/>\n";
+        //$report .= "Poi '". $poi->getTitle()."' has #".count($relevants)." similars and most similar is '".$relevants[0]["title"]."' with score ".$relevants[0]["score"].".<br/><br/>";
 
         // insertion criteria based on existing poi similarity
-        if (count($relevants) && $relevants[0]["score"] > 0 && $relevants[0]["score"] < 10) {
-            $report .= "Will insert '". $poi->getTitle()."' with #".count($relevants)." similars as it is not similar to '".$relevants[0]["title"]."' with score ".$relevants[0]["score"]." and threshold 10.<br/><br/>\n";
-            $pois_to_insert[] = $poi;
+        if (count($relevants) && $relevants[0]['score'] >= WebContentSource::RELEVANCE_THRESHOLD) {
+            $report .= "Will NOT insert '". $poi->getTitle()."' with #".count($relevants)." similars as it is similar to '".$relevants[0]["title"]."' with score ".$relevants[0]["score"]." and threshold ".WebContentSource::RELEVANCE_THRESHOLD.".<br/><br/>\n";
         }else if (!count($relevants)) {
-            $report .= "Will insert '". $poi->getTitle()."' with #".count($relevants).".<br/><br/>\n";
+            $report .= "Will insert '". $poi->getTitle()."' with #0 relevants.<br/><br/>\n";
             $pois_to_insert[] = $poi;
+        }else {
+        	$report .= "Will insert '". $poi->getTitle()."' with #".count($relevants)." similars as it is not similar enough to '".$relevants[0]["title"]."' with score ".$relevants[0]["score"]." and threshold ".WebContentSource::RELEVANCE_THRESHOLD.".<br/><br/>\n";
+        	$pois_to_insert[] = $poi;
         }
 
         $res = Poi::insertBatch($dbc, $pois_to_insert);
